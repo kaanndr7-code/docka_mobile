@@ -1,6 +1,8 @@
 import { create } from "zustand";
 
-// Sepetteki ürünün veri tipi
+// --- TİPLER (INTERFACES) ---
+
+// 1. Sepetteki ürünün veri tipi
 export interface CartItem {
   id: string;
   name: string;
@@ -9,26 +11,50 @@ export interface CartItem {
   image?: string;
 }
 
+// 2. Sipariş (Order) Veri Tipi (Checkout sayfasındaki hata için eklendi)
+export interface Order {
+  id: string;
+  date: string;
+  items: any[];
+  totalAmount: number;
+  status: string;
+  type: string;
+}
+
+// --- STATE ARAYÜZÜ ---
 interface DockaState {
-  // ... (Mevcut olan location, orderType, isTabBarVisible state'leriniz burada kalsın)
+  // Menü Görünürlüğü
   isTabBarVisible: boolean;
   setTabBarVisible: (visible: boolean) => void;
 
-  // YENİ EKLENEN SEPET STATE'LERİ
+  // Sepet İşlemleri
   cart: CartItem[];
   addToCart: (item: Omit<CartItem, "quantity">) => void;
   removeFromCart: (id: string) => void;
   decreaseQuantity: (id: string) => void;
   clearCart: () => void;
   getCartTotal: () => number;
+
+  // Checkout (Kullanıcı & Tekne) Bilgileri
+  boatName: string;
+  setBoatName: (name: string) => void;
+  phone: string;
+  setPhone: (phone: string) => void;
+
+  // Sipariş Yönetimi
+  orderType: string;
+  setOrderType: (type: string) => void;
+  orders: Order[];
+  addOrder: (order: Order) => void;
 }
 
+// --- ZUSTAND STORE OLUŞTURMA ---
 export const useDockaStore = create<DockaState>((set, get) => ({
-  // ... (Mevcut başlangıç değerleriniz burada kalsın)
+  // 1. Menü Görünürlüğü
   isTabBarVisible: true,
   setTabBarVisible: (visible) => set({ isTabBarVisible: visible }),
 
-  // SEPET İŞLEMLERİ
+  // 2. Sepet İşlemleri
   cart: [],
   addToCart: (item) =>
     set((state) => {
@@ -71,4 +97,18 @@ export const useDockaStore = create<DockaState>((set, get) => ({
       0,
     );
   },
+
+  // 3. Checkout (Kullanıcı & Tekne) Bilgileri
+  boatName: "",
+  setBoatName: (name) => set({ boatName: name }),
+
+  phone: "",
+  setPhone: (phone) => set({ phone: phone }),
+
+  // 4. Sipariş Yönetimi
+  orderType: "restaurant", // Varsayılan değer
+  setOrderType: (type) => set({ orderType: type }),
+
+  orders: [],
+  addOrder: (order) => set((state) => ({ orders: [...state.orders, order] })),
 }));
