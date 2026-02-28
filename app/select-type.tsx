@@ -1,9 +1,20 @@
+import { useDockaStore } from "@/src/store/appStore"; // Store'u dahil ettik
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+const NAVY = "#0E3A5D";
+const OFF_WHITE = "#F5F7F6";
+
 export default function SelectType() {
   const router = useRouter();
+  // Zustand'dan kayıt fonksiyonunu alıyoruz
+  const setOrderType = useDockaStore((state) => state.setOrderType);
+
+  const handleSelect = (type: "restaurant" | "market") => {
+    setOrderType(type); // Global state'e seçimi kaydet
+    router.push("/location"); // Artık parametre taşımamıza gerek yok
+  };
 
   return (
     <View style={styles.container}>
@@ -16,12 +27,7 @@ export default function SelectType() {
         <TouchableOpacity
           style={styles.card}
           activeOpacity={0.9}
-          onPress={() =>
-            router.push({
-              pathname: "/location",
-              params: { type: "restaurant" },
-            })
-          }
+          onPress={() => handleSelect("restaurant")}
         >
           <View style={styles.left}>
             <View style={styles.iconContainer}>
@@ -41,9 +47,7 @@ export default function SelectType() {
         <TouchableOpacity
           style={styles.card}
           activeOpacity={0.9}
-          onPress={() =>
-            router.push({ pathname: "/location", params: { type: "market" } })
-          }
+          onPress={() => handleSelect("market")}
         >
           <View style={styles.left}>
             <View style={styles.iconContainer}>
@@ -64,9 +68,6 @@ export default function SelectType() {
   );
 }
 
-const NAVY = "#0E3A5D";
-const OFF_WHITE = "#F5F7F6";
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -74,23 +75,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 28,
     justifyContent: "center",
   },
-  header: {
-    marginBottom: 60,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: "600",
-    color: NAVY,
-    marginBottom: 12,
-  },
-  subtitle: {
-    fontSize: 15,
-    color: "#6B7280",
-    lineHeight: 22,
-  },
-  optionsContainer: {
-    gap: 20,
-  },
+  header: { marginBottom: 60 },
+  title: { fontSize: 26, fontWeight: "600", color: NAVY, marginBottom: 12 },
+  subtitle: { fontSize: 15, color: "#6B7280", lineHeight: 22 },
+  optionsContainer: { gap: 20 },
   card: {
     paddingVertical: 26,
     paddingHorizontal: 22,
@@ -102,11 +90,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  left: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-  },
+  left: { flexDirection: "row", alignItems: "center", gap: 14 },
   iconContainer: {
     width: 42,
     height: 42,
@@ -115,14 +99,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: NAVY,
-    marginBottom: 4,
-  },
-  cardDesc: {
-    fontSize: 13,
-    color: "#6B7280",
-  },
+  cardTitle: { fontSize: 18, fontWeight: "600", color: NAVY, marginBottom: 4 },
+  cardDesc: { fontSize: 13, color: "#6B7280" },
 });

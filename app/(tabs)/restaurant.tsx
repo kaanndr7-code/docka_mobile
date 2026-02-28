@@ -1,8 +1,12 @@
+import { useDockaStore } from "@/src/store/appStore"; // Store eklendi
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import { useState } from "react"; // useState eklendi
 import {
   FlatList,
   Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -38,6 +42,27 @@ const RESTAURANTS = [
 
 export default function RestaurantScreen() {
   const router = useRouter();
+  const setTabBarVisible = useDockaStore((state) => state.setTabBarVisible);
+  const [lastOffset, setLastOffset] = useState(0);
+
+  // Kaydırma Kontrolü
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+
+    if (currentOffset <= 0) {
+      setTabBarVisible(true);
+      return;
+    }
+
+    if (Math.abs(currentOffset - lastOffset) < 10) return;
+
+    if (currentOffset > lastOffset) {
+      setTabBarVisible(false); // Aşağı kayıyor -> Gizle
+    } else {
+      setTabBarVisible(true); // Yukarı kayıyor -> Göster
+    }
+    setLastOffset(currentOffset);
+  };
 
   const renderItem = ({ item }: any) => (
     <TouchableOpacity
@@ -75,7 +100,9 @@ export default function RestaurantScreen() {
         data={RESTAURANTS}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 40 }}
+        onScroll={handleScroll} // Fonksiyon bağlandı
+        scrollEventThrottle={16} // Akıcılık sağlandı
+        contentContainerStyle={{ paddingBottom: 150 }} // Menü payı için artırıldı
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -89,14 +116,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
   },
-
   header: {
     fontSize: 22,
     fontWeight: "600",
     color: NAVY,
     marginBottom: 24,
+    marginTop: 40, // SafeArea benzeri bir boşluk için
   },
-
   card: {
     marginBottom: 28,
     backgroundColor: "white",
@@ -105,56 +131,47 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ECECEC",
   },
-
   imageContainer: {
     height: 210,
     position: "relative",
   },
-
   image: {
     width: "100%",
     height: "100%",
   },
-
   gradient: {
     position: "absolute",
     bottom: 0,
     width: "100%",
     height: "65%",
   },
-
   overlayContent: {
     position: "absolute",
     bottom: 18,
     left: 20,
   },
-
   overlayName: {
     fontSize: 20,
     fontWeight: "600",
     color: "white",
   },
-
   overlayCuisine: {
     fontSize: 13,
     color: "rgba(255,255,255,0.85)",
     marginTop: 4,
   },
-
   bottomRow: {
     paddingVertical: 16,
     paddingHorizontal: 20,
     flexDirection: "row",
     justifyContent: "flex-end",
   },
-
   etaPill: {
     backgroundColor: "#0E3A5D10",
     paddingHorizontal: 16,
     paddingVertical: 7,
     borderRadius: 50,
   },
-
   etaText: {
     fontSize: 12,
     fontWeight: "500",
